@@ -6,7 +6,8 @@
 }
 
 body {
-    background-color: #43047d;
+    /* background-color: #43047d; */
+    overflow: hidden;
 }
 
 #canvas1 {
@@ -20,6 +21,6 @@ body {
     max-height: 100%; 
 }
 
-#layer1, #layer2, #layer3, #layer4 {
+#layer1, #layer4, #layer3, #layer2 {
     display: none;
 }

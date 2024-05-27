@@ -134,10 +134,63 @@ window.addEventListener('load', () => {
         }
     }
 
+    class Layer {
+        constructor(game, image, speedModifier) {
+            this.game = game;
+            this.image = image;
+            this.speedModifier = speedModifier;
+            this.width = 1920;
+            this.height = 1080; 
+            this.x = 0;
+            this.y = 0;
+        }
+    
+        update() {
+            this.x -= this.game.player.speedX * this.speedModifier;
+    
+            // Reset positions for seamless scrolling
+            if (this.x <= -this.width) this.x = 0;
+        }
+    
+        draw(context) {
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
+            // context.drawImage(this.image, this.x, this.width, this.y );
+        }
+    }
+    
+
+    class Background {
+        constructor(game) {
+            this.game = game;
+            this.image1 = document.getElementById('layer1');
+            this.image2 = document.getElementById('layer2');
+            this.image3 = document.getElementById('layer3');
+            // this.image4 = document.getElementById('layer4');
+            this.layer1 = new Layer(this.game, this.image1, 1);
+            this.layer2 = new Layer(this.game, this.image2, 1);
+            this.layer3 = new Layer(this.game, this.image3, 1);
+            // this.layer4 = new Layer(this.game, this.image4, 1);
+            this.layers = [this.layer1, this.layer2, this.layer3];
+        }
+
+        update() {
+            this.layers.forEach(layer => layer.update());
+        }
+
+        draw(context) {
+            this.layers.forEach(layer => layer.draw(context))
+        }
+    }
+
+    class UI {
+        
+    }
+
     class Game {
         constructor(width, height) {
             this.width = width;
             this.height = height;
+            this.Background = new Background(this);
             this.player = new Player(this);
             this.input = new InputHandler(this);
             this.enemyTimer = 0;
@@ -151,6 +204,7 @@ window.addEventListener('load', () => {
 
         update(deltaTime) {
             this.player.update();
+            this.Background.update();
             this.enemies.forEach(enemy => {
                 enemy.update();
                 this.player.projectiles.forEach(projectile => {
@@ -171,6 +225,7 @@ window.addEventListener('load', () => {
         }
 
         draw(context) {
+            this.Background.draw(context);
             this.player.draw(context);
             this.enemies.forEach(enemy => enemy.draw(context));
         }
@@ -210,3 +265,5 @@ window.addEventListener('load', () => {
     }
     animate(0);
 });
+
+
