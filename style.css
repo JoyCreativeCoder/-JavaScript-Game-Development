@@ -21,6 +21,6 @@ body {
     max-height: 100%; 
 }
 
-#layer1, #layer4, #layer3, #layer2 {
+#background1, #background2, #player, #jellyFish {
     display: none;
 }
