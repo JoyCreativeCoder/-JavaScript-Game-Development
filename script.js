@@ -912,80 +912,86 @@ window.addEventListener('load', () => {
         }
     }
 
+    const PlayerStates = {
+        IDLE: 'idle',
+        SWIMMING: 'swimming',
+        ATTACK: 'attack',
+        DEAD: 'dead',
+        HURT: 'hurt'
+    };
+
     class Player {
         constructor(game) {
             this.game = game;
-            this.width = 120;
-            this.height = 190;
-            this.frameX = 0;
-            this.framey = 0;
-            this.maxFrame = 37;
+            this.width = 815;
+            this.height = 1001;
             this.x = 350;
             this.y = 800;
             this.speedY = 0;
             this.speedX = 0;
             this.maxSpeed = 10;
-            this.gravity = 0.5;  // Adjusted for smoother underwater gravity
-            this.damping = 0.95;  // Added damping effect for smoother landing
-            this.bounceSpeed = 0.05;
-            this.bounceHeight = 5;
-            this.bounce = 0;
             this.projectiles = [];
-            this.image = document.getElementById('player')
+            this.image = document.getElementById('player');
+    
+            this.frameX = 0;  // Current frame in the sprite sheet (X coordinate)
+            this.frameY = 0;  // Current frame in the sprite sheet (Y coordinate)
+            this.maxFrame = 5;  // Number of frames in the sprite sheet (assuming a single row)
+            this.fps = 10;
+            this.frameInterval = 1000 / this.fps;
+            this.frameTimer = 0;
         }
     
-        update() {
+        update(deltaTime) {
             if (this.game.keys.includes('ArrowUp')) {
                 this.speedY = -this.maxSpeed;
             } else if (this.game.keys.includes('ArrowDown')) {
                 this.speedY = this.maxSpeed;
-            } else {
-                this.speedY += this.gravity;
-                this.speedY *= this.damping;  // Apply damping to smoothen the descent
-            }
-    
-            if (this.game.keys.includes('ArrowLeft')) {
+            } else if (this.game.keys.includes('ArrowLeft')) {
                 this.speedX = -this.maxSpeed;
             } else if (this.game.keys.includes('ArrowRight')) {
                 this.speedX = this.maxSpeed;
             } else {
+                this.speedY = 0;
                 this.speedX = 0;
             }
     
             this.y += this.speedY;
             this.x += this.speedX;
     
-            if (this.x < 10) this.x = 10;
-            if (this.x + this.width > this.game.width - 10) this.x = this.game.width - 10 - this.width;
-            if (this.y < 100) this.y = 100;
-            if (this.y + this.height > this.game.height - 50) {
-                this.y = this.game.height - 50 - this.height;
-                this.speedY = 0;
-            }
-    
-            // Only bounce when idle (no movement keys pressed and speed is zero)
-            // if (!this.game.keys.includes('ArrowUp') && !this.game.keys.includes('ArrowDown') && 
-            //     !this.game.keys.includes('ArrowLeft') && !this.game.keys.includes('ArrowRight') &&
-            //     this.speedY === 0 && this.speedX === 0) {
-            //     this.bounce += this.bounceSpeed;
-            //     this.y += Math.sin(this.bounce) * this.bounceHeight;
-            // }
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.width > this.game.width) this.x = this.game.width - this.width;
+            if (this.y < 0) this.y = 0;
+            if (this.y + this.height > this.game.height) this.y = this.game.height - this.height;
     
             this.projectiles.forEach(projectile => projectile.update());
             this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
-
-            //sprite animation logic
-            if(this.frameX < this.maxFrame) {
-                this.frameX++;
+    
+            // updating the frame
+            if (this.frameTimer > this.frameInterval) {
+                if (this.frameX < this.maxFrame - 1) {
+                    this.frameX++;
+                } else {
+                    this.frameX = 0;
+                }
+                this.frameTimer = 0;
             } else {
-                this.frameX = 0;
+                this.frameTimer += deltaTime;
             }
         }
     
         draw(context) {
-            context.fillStyle = '#FFD700';
-            // context.strokeRect(this.x, this.y, this.width, this.height);
-            context.drawImage(this.image, this.frameX * this.width, this.framey * this.height,  this.width, this.height,  this.x, this.y, this.width, this.height);
+            context.drawImage(
+                this.image,
+                this.frameX * this.width,
+                this.frameY * this.height,
+                this.width,
+                this.height,
+                this.x,
+                this.y,
+                this.width,
+                this.height
+            );
+    
             this.projectiles.forEach(projectile => projectile.draw(context));
         }
     
@@ -996,6 +1002,7 @@ window.addEventListener('load', () => {
             }
         }
     }
+    
     
 
     class Enemy {
@@ -1022,26 +1029,19 @@ window.addEventListener('load', () => {
         }
     }
 
-    // class Anglerfish extends Enemy {
-    //     constructor(game) {
-    //         super(game);
-    //         this.width = 228 * 0.2;
-    //         this.height = 169 * 0.2;
-    //         this.y = Math.random() * (this.game.height * 0.9 - this.height);
-    //     }
-    // }
 
     class Jellyfish extends Enemy {
         constructor(game) {
             super(game);
-            this.width = 150; // Width of a single frame
-            this.height = 214; // Height of a single frame
+            this.width = 102; // Width of a single frame
+            this.height = 140; // Height of a single frame
             this.image = document.getElementById('jellyFish');
             this.frameX = 0;
             this.maxFrame = 3; // Total number of frames - 1 (4 frames total)
             this.frameTimer = 0;
             this.frameInterval = 1000 / 10; // Adjust the speed of the animation (10 FPS)
             this.y = Math.random() * (this.game.height * 0.9 - this.height);
+            
         }
     
         update(deltaTime) {
@@ -1062,14 +1062,14 @@ window.addEventListener('load', () => {
         draw(context) {
             context.drawImage(
                 this.image,
-                this.frameX * this.width, // Source x position
-                0, // Source y position (single row)
-                this.width, // Source width
-                this.height, // Source height
-                this.x, // Destination x position
-                this.y, // Destination y position
-                this.width, // Destination width
-                this.height // Destination height
+                this.frameX * this.width,
+                0, 
+                this.width,
+                this.height, 
+                this.x, 
+                this.y, 
+                this.width, 
+                this.height 
             );
         }
     }
@@ -1103,20 +1103,20 @@ window.addEventListener('load', () => {
     }
 
     class Background {
-        constructor(game) {
-            this.game = game;
-            this.image1 = document.getElementById('background1');
-            this.layer1 = new Layer(this.game, this.image1, 5);
-            this.layers = [this.layer1];
-        }
+        // constructor(game) {
+        //     this.game = game;
+        //     this.image1 = document.getElementById('background1');
+        //     this.layer1 = new Layer(this.game, this.image1, 5);
+        //     this.layers = [this.layer1];
+        // }
 
-        update() {
-            this.layers.forEach(layer => layer.update());
-        }
+        // update() {
+        //     this.layers.forEach(layer => layer.update());
+        // }
 
-        draw(context) {
-            this.layers.forEach(layer => layer.draw(context));
-        }
+        // draw(context) {
+        //     this.layers.forEach(layer => layer.draw(context));
+        // }
     }
 
     class UI {}
@@ -1138,7 +1138,7 @@ window.addEventListener('load', () => {
         }
     
         update(deltaTime) {
-            this.player.update();
+            this.player.update(deltaTime);
             this.enemies.forEach(enemy => {
                 enemy.update(deltaTime);
                 this.player.projectiles.forEach(projectile => {
@@ -1159,7 +1159,7 @@ window.addEventListener('load', () => {
         }
     
         draw(context) {
-            this.background.draw(context);
+            // this.background.draw(context);
             this.player.draw(context);
             this.enemies.forEach(enemy => enemy.draw(context));
         }
@@ -1185,6 +1185,7 @@ window.addEventListener('load', () => {
             return (dx * dx + dy * dy <= (circle.radius * circle.radius));
         }
     }
+    
     
 
     const game = new Game(canvas.width, canvas.height);

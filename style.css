@@ -6,21 +6,20 @@
 }
 
 body {
-    /* background-color: #43047d; */
+    background-color: #1d8ff27a;
     overflow: hidden;
 }
 
 #canvas1 {
-    /* border: 2px solid black; */
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color:#3636d5;
+    background: linear-gradient(180deg, #00d2ff 0%, #3a47d5 100%);
     max-width: 100%;
     max-height: 100%; 
 }
 
-#background1, #background2, #player, #jellyFish {
+#background1, #background2, #player, #jellyFish, #coin {
     display: none;
 }
