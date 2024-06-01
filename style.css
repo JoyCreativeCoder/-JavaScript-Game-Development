@@ -20,6 +20,6 @@ body {
     max-height: 100%; 
 }
 
-#background1, #background2, #player, #jellyFish, #coin {
+#background1, #background2, #playerSwimming, #jellyFish, #coin , #idleplayer, #playerAttack, #poisionBubble{
     display: none;
 }
