@@ -63,6 +63,7 @@ window.addEventListener('load', () => {
             this.speedY = 0;
             this.speedX = 0;
             this.maxSpeed = 10;
+            this.gravity = 4.5; 
             this.projectiles = [];
             this.image = document.getElementById('player');
     
@@ -114,7 +115,7 @@ window.addEventListener('load', () => {
             } else {
                 this.speedY = 0;
             }
-
+        
             if (this.game.keys.includes('ArrowLeft')) {
                 this.speedX = -this.maxSpeed;
             } else if (this.game.keys.includes('ArrowRight')) {
@@ -122,18 +123,25 @@ window.addEventListener('load', () => {
             } else {
                 this.speedX = 0;
             }
-
+        
+            //adding Gravity
+            this.speedY += this.gravity;
             this.y += this.speedY;
             this.x += this.speedX;
 
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.width > this.game.width) this.x = this.game.width - this.width;
-            if (this.y < 0) this.y = 0;
-            if (this.y + this.height > this.game.height) this.y = this.game.height - this.height;
 
+        
+            // Buffer space to avoid touching the canvas edge
+            const buffer = 150; 
+        
+            if (this.x < -buffer) this.x = -buffer;
+            if (this.x + this.width > this.game.width + buffer) this.x = this.game.width + buffer - this.width;
+            if (this.y < -2 * buffer) this.y = -2 * buffer;
+            if (this.y + this.height > this.game.height + 2 * buffer) this.y = this.game.height + 2 * buffer - this.height;
+        
             this.projectiles.forEach(projectile => projectile.update());
             this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
-
+        
             // updating the frame
             if (this.frameTimer > this.frameInterval) {
                 if (this.frameX < this.maxFrame - 1) {
@@ -145,7 +153,7 @@ window.addEventListener('load', () => {
             } else {
                 this.frameTimer += deltaTime;
             }
-
+        
             if (this.attackCooldown > 0) {
                 this.attackCooldown -= deltaTime;
                 if (this.attackCooldown <= 0) {
@@ -158,8 +166,8 @@ window.addEventListener('load', () => {
                     this.setState(PlayerStates.IDLE);
                 }
             }
-            // this.game.keys.includes('ArrowUp') || this.game.keys.includes('ArrowDown') ||
         }
+        
 
         draw(context) {
             context.drawImage(
