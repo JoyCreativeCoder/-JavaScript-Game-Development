@@ -9,10 +9,7 @@ window.addEventListener("load", () => {
       this.game = game;
       window.addEventListener("keydown", (event) => {
         if (
-          (event.key === "ArrowUp" ||
-            event.key === "ArrowDown" ||
-            event.key === "ArrowLeft" ||
-            event.key === "ArrowRight") &&
+          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) &&
           this.game.keys.indexOf(event.key) === -1
         ) {
           this.game.keys.push(event.key);
@@ -64,7 +61,8 @@ window.addEventListener("load", () => {
       this.game = game;
       this.width = 815;
       this.height = 1001;
-      this.x = 350;
+      this.startX = 30; // Store the initial x position
+      this.x = this.startX;
       this.y = 800;
       this.speedY = 0;
       this.speedX = 0;
@@ -72,7 +70,9 @@ window.addEventListener("load", () => {
       this.gravity = 4.5;
       this.projectiles = [];
       this.image = document.getElementById("player");
-
+      this.flipped = false; // Track the flip state
+      this.movingLeft = false; // Track if the player is moving left
+    
       this.sprites = {
         [PlayerStates.IDLE]: document.getElementById("idleplayer"),
         [PlayerStates.SWIMMING]: document.getElementById("playerSwimming"),
@@ -81,16 +81,16 @@ window.addEventListener("load", () => {
       // Initial state
       this.state = PlayerStates.IDLE;
       this.image = this.sprites[this.state];
-
-      this.frameX = 0; // Current frame in the sprite sheet (X coordinate)
-      this.frameY = 0; // Current frame in the sprite sheet (Y coordinate)
-      this.maxFrame = 5; // Number of frames in the sprite sheet (assuming a single row)
+    
+      this.frameX = 0;
+      this.frameY = 0;
+      this.maxFrame = 5;
       this.fps = 10;
       this.frameInterval = 1000 / this.fps;
       this.frameTimer = 0;
-      this.attackCooldown = 0; // Cooldown to transition from attack to other states
+      this.attackCooldown = 0;
     }
-
+    
     setState(state) {
       if (this.state !== state) {
         this.state = state;
@@ -111,9 +111,12 @@ window.addEventListener("load", () => {
         }
       }
     }
-
+  
+    flip() {
+      this.flipped = !this.flipped;
+    }
+    
     update(deltaTime) {
-      // Movement logic
       if (this.game.keys.includes("ArrowUp")) {
         this.speedY = -this.maxSpeed;
       } else if (this.game.keys.includes("ArrowDown")) {
@@ -121,36 +124,43 @@ window.addEventListener("load", () => {
       } else {
         this.speedY = 0;
       }
-
+  
+      this.movingLeft = false;
+  
       if (this.game.keys.includes("ArrowLeft")) {
         this.speedX = -this.maxSpeed;
+        if (!this.flipped) this.flip();
+        this.movingLeft = true;
       } else if (this.game.keys.includes("ArrowRight")) {
         this.speedX = this.maxSpeed;
+        if (this.flipped) this.flip();
       } else {
         this.speedX = 0;
       }
-
-      //adding Gravity
+  
       this.speedY += this.gravity;
       this.y += this.speedY;
+  
+      // Prevent moving back beyond the starting position
       this.x += this.speedX;
-
-      // Buffer space to avoid touching the canvas edge
+      if (this.x < this.startX) {
+        this.x = this.startX;
+      }
+  
       const buffer = 150;
-
+  
       if (this.x < -buffer) this.x = -buffer;
       if (this.x + this.width > this.game.width + buffer)
         this.x = this.game.width + buffer - this.width;
       if (this.y < -2 * buffer) this.y = -2 * buffer;
       if (this.y + this.height > this.game.height + 2 * buffer)
         this.y = this.game.height + 2 * buffer - this.height;
-
+  
       this.projectiles.forEach((projectile) => projectile.update());
       this.projectiles = this.projectiles.filter(
         (projectile) => !projectile.markedForDeletion
       );
-
-      // updating the frame
+  
       if (this.frameTimer > this.frameInterval) {
         if (this.frameX < this.maxFrame - 1) {
           this.frameX++;
@@ -161,7 +171,7 @@ window.addEventListener("load", () => {
       } else {
         this.frameTimer += deltaTime;
       }
-
+  
       if (this.attackCooldown > 0) {
         this.attackCooldown -= deltaTime;
         if (this.attackCooldown <= 0) {
@@ -178,23 +188,40 @@ window.addEventListener("load", () => {
         }
       }
     }
-
+    
     draw(context) {
-      context.drawImage(
-        this.image,
-        this.frameX * this.width,
-        this.frameY * this.height,
-        this.width,
-        this.height,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-
+      context.save();
+      if (this.flipped) {
+        context.scale(-1, 1);
+        context.drawImage(
+          this.image,
+          this.frameX * this.width,
+          this.frameY * this.height,
+          this.width,
+          this.height,
+          -this.x - this.width, // Adjust x for flip
+          this.y,
+          this.width,
+          this.height
+        );
+      } else {
+        context.drawImage(
+          this.image,
+          this.frameX * this.width,
+          this.frameY * this.height,
+          this.width,
+          this.height,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
+      }
+      context.restore();
+    
       this.projectiles.forEach((projectile) => projectile.draw(context));
     }
-
+    
     shoot() {
       if (this.game.ammo > 0) {
         const offsetX = this.width * 0.75;
@@ -207,6 +234,9 @@ window.addEventListener("load", () => {
       }
     }
   }
+  
+  
+  
 
   class Enemy {
     constructor(game) {
@@ -280,190 +310,192 @@ window.addEventListener("load", () => {
       this.game = game;
       this.x = x;
       this.y = y;
-      this.width = 50;
-      this.height = 50;
-      this.markedForDeletion = false;
+      this.width = 60;
+      this.height = 60;
       this.image = document.getElementById("coin");
+      this.markedForDeletion = false;
     }
 
     update() {
-      this.x -= this.game.speed; // Move the coin leftward as the background moves
-      if (this.x + this.width < 0) {
+      if (
+        this.x < this.game.player.x + this.game.player.width &&
+        this.x + this.width > this.game.player.x &&
+        this.y < this.game.player.y + this.game.player.height &&
+        this.y + this.height > this.game.player.y
+      ) {
         this.markedForDeletion = true;
+        this.game.score++;
       }
     }
 
     draw(context) {
       context.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
-
-    checkCollision(player) {
-      return (
-        player.x < this.x + this.width &&
-        player.x + player.width > this.x &&
-        player.y < this.y + this.height &&
-        player.y + player.height > this.y
-      );
-    }
   }
 
-  class Layer {
-    constructor(game, image, speedModifier) {
+  class UI {
+    constructor(game) {
       this.game = game;
-      this.image = image;
-      this.speedModifier = speedModifier;
-      this.width = 1920;
-      this.height = 1080;
-      this.x = 0;
-      this.y = 0;
-    }
-
-    update() {
-      this.x -= this.game.speed * this.speedModifier;
-      if (this.x <= -this.width) {
-        this.x = 0;
-      }
+      this.fontSize = 30;
+      this.fontFamily = "Helvetica";
+      this.color = "white";
     }
 
     draw(context) {
-      context.drawImage(this.image, this.x, this.y);
-      context.drawImage(this.image, this.x + this.width, this.y);
-      if (this.x < 0) {
-        context.drawImage(this.image, this.x + this.width * 2, this.y);
-      }
+      context.save();
+      context.fillStyle = this.color;
+      context.shadowOffsetX = 2;
+      context.shadowOffsetY = 2;
+      context.shadowColor = "black";
+      context.font = this.fontSize + "px " + this.fontFamily;
+      context.fillText("Score: " + this.game.score, 20, 50);
+      context.fillText("Ammo: " + this.game.ammo, 20, 90);
+      context.restore();
     }
   }
 
-  class Background {}
 
-  class UI {}
+  class Background {
+    constructor(game) {
+      this.game = game;
+      this.image1 = document.getElementById("layer1");
+      this.image2 = document.getElementById("layer2");
+      this.width = 1920;
+      this.height = 1080;
+      this.x1 = 0;
+      this.x2 = this.width;
+      this.y = 0;
+    }
+  
+    update() {
+      const playerSpeedX = this.game.player.speedX;
+  
+      // Move the backgrounds based on the player's speed, but only if the player can move left
+      if (this.game.player.movingLeft && this.game.player.x > this.game.player.startX) {
+        this.x1 -= playerSpeedX;
+        this.x2 -= playerSpeedX;
+      } else if (!this.game.player.movingLeft) {
+        this.x1 -= playerSpeedX;
+        this.x2 -= playerSpeedX;
+      }
+  
+      // Wrap backgrounds to the right
+      if (this.x1 <= -this.width) {
+        this.x1 = this.x2 + this.width - playerSpeedX;
+      }
+      if (this.x2 <= -this.width) {
+        this.x2 = this.x1 + this.width - playerSpeedX;
+      }
+  
+      // Wrap backgrounds to the left
+      if (this.x1 >= this.width) {
+        this.x1 = this.x2 - this.width + playerSpeedX;
+      }
+      if (this.x2 >= this.width) {
+        this.x2 = this.x1 - this.width + playerSpeedX;
+      }
+    }
+  
+    draw(context) {
+      context.drawImage(this.image1, this.x1, this.y, this.width, this.height);
+      context.drawImage(this.image2, this.x2, this.y, this.width, this.height);
+    }
+  }
+  
 
   class Game {
     constructor(width, height) {
       this.width = width;
       this.height = height;
-      this.background = new Background(this);
       this.player = new Player(this);
       this.input = new InputHandler(this);
-      this.enemyTimer = 0;
-      this.enemyInterval = 2000; // Adjusted for jellyfish interval
+      this.ui = new UI(this);
+      this.background = new Background(this);
       this.keys = [];
       this.enemies = [];
-      this.coins = this.createCoinGroups();
-      this.ammo = 100;
+      this.enemyTimer = 0;
+      this.enemyInterval = 1000;
+      this.ammo = 20;
+      this.maxAmmo = 50;
+      this.ammoTimer = 0;
+      this.ammoInterval = 300;
+      this.score = 0;
+      this.winningScore = 10;
       this.gameOver = false;
-      this.speed = 2;
-      this.score = 0; // To keep track of the score
+      this.coins = [];
     }
-
-    createCoinGroups() {
-      const coinGroups = [];
-      const groupCount = 5;
-      const coinsPerGroup = [6, 5, 8, 7, 4];
-      const groupSpacing = 600;
-      let currentX = this.width;
-
-      for (let i = 0; i < groupCount; i++) {
-        const group = [];
-        const coins = coinsPerGroup[i];
-
-        const isHorizontal = Math.random() < 0.5;
-        const startY = Math.random() * (this.height - 100);
-
-        for (let j = 0; j < coins; j++) {
-          const x = currentX + j * 100;
-          const y = isHorizontal ? startY : startY + j * 100; // Vertical position
-          group.push(new Coin(this, x, y));
-        }
-
-        coinGroups.push(...group);
-        currentX += groupSpacing; // Move to the next group position
-      }
-
-      return coinGroups;
-    }
-
+  
     update(deltaTime) {
+      this.background.update();
       this.player.update(deltaTime);
-
-      // Update and check collision for coins
-      this.coins.forEach((coin) => {
-        coin.update();
-        if (coin.checkCollision(this.player)) {
-          coin.markedForDeletion = true;
+      if (this.ammoTimer > this.ammoInterval) {
+        if (this.ammo < this.maxAmmo) this.ammo++;
+        this.ammoTimer = 0;
+      } else {
+        this.ammoTimer += deltaTime;
+      }
+  
+      this.coins.forEach((coin) => coin.update(deltaTime));
+      this.coins = this.coins.filter((coin) => !coin.markedForDeletion);
+  
+      this.enemies.forEach((enemy) => {
+        enemy.update(deltaTime);
+        if (
+          this.player.projectiles.some(
+            (projectile) =>
+              projectile.x + projectile.width > enemy.x &&
+              projectile.x < enemy.x + enemy.width &&
+              projectile.y + projectile.height > enemy.y &&
+              projectile.y < enemy.y + enemy.height
+          )
+        ) {
+          enemy.markedForDeletion = true;
           this.score++;
         }
       });
-      this.coins = this.coins.filter((coin) => !coin.markedForDeletion);
-
-      // Update and check collision for enemies
-      this.enemies.forEach((enemy) => {
-        enemy.update(deltaTime);
-        this.player.projectiles.forEach((projectile) => {
-          if (this.checkCollision(projectile, enemy)) {
-            projectile.markedForDeletion = true;
-            enemy.markedForDeletion = true;
-          }
-        });
-      });
       this.enemies = this.enemies.filter((enemy) => !enemy.markedForDeletion);
-
-      // Spawn new enemies
-      if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
+  
+      if (this.enemyTimer > this.enemyInterval) {
         this.addEnemy();
         this.enemyTimer = 0;
       } else {
         this.enemyTimer += deltaTime;
       }
     }
-
+  
     draw(context) {
+      this.background.draw(context);
       this.player.draw(context);
-      this.coins.forEach((coin) => coin.draw(context));
       this.enemies.forEach((enemy) => enemy.draw(context));
-      // Optionally draw the score
-      context.fillStyle = "white";
-      context.font = "30px Arial";
-      context.fillText("Score: " + this.score, 20, 50);
+      this.ui.draw(context);
+      this.coins.forEach((coin) => coin.draw(context));
     }
-
+  
     addEnemy() {
       this.enemies.push(new Jellyfish(this));
     }
-
-    checkCollision(circle, rect) {
-      const distX = Math.abs(circle.x - rect.x - rect.width / 2);
-      const distY = Math.abs(circle.y - rect.y - rect.height / 2);
-
-      if (
-        distX > rect.width / 2 + circle.radius ||
-        distY > rect.height / 2 + circle.radius
-      ) {
-        return false;
-      }
-
-      if (distX <= rect.width / 2 || distY <= rect.height / 2) {
-        return true;
-      }
-
-      const dx = distX - rect.width / 2;
-      const dy = distY - rect.height / 2;
-      return dx * dx + dy * dy <= circle.radius * circle.radius;
+  
+    addCoin() {
+      const x = Math.random() * (this.width - 50);
+      const y = Math.random() * (this.height - 50);
+      this.coins.push(new Coin(this, x, y));
     }
   }
-
+  
   const game = new Game(canvas.width, canvas.height);
   let lastTime = 0;
-
-  function animate(timestamp) {
-    const deltaTime = timestamp - lastTime;
-    lastTime = timestamp;
+  
+  function animate(timeStamp) {
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
     context.clearRect(0, 0, canvas.width, canvas.height);
     game.update(deltaTime);
     game.draw(context);
     requestAnimationFrame(animate);
   }
-
+  
   animate(0);
+  
 });
-0
+
+
