@@ -1,24 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ocean Feast: The Ultimate Growth Challenge</title>
+    <title>Ocean</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
+    <div id="openingScreen">
+        <span id="opening-header">Under Water</span>
+        <button id="playButton">Play</button>
+    </div>
+
+    <!-- health container -->
+    <div id="health-bar-container" class="absolute health-bar-container">
+        <div id="health-bar" class="health-bar"></div>
+        <img id="health-icon" class="absolute icon" src="./asset/life-icon.png"></img>
+    </div>
+
+     <!--top-right-->
+     <div id="ingame-top-right" class="right_menu_bar">
+        <div id="ingame-menu" class="menu_buttons">
+            <div id="sound-button" class="menu-button">
+                <img src="./asset/sound-icon.png">
+            </div>
+            <div id="music-button" class="menu-button">
+                <img src="./asset/music-icon.png">
+            </div>
+            <div id="control-button" class="menu-button">
+                <img src="./asset/controler-icon.png">
+            </div>
+        </div>
+
+        <!--coin container-->
+        <div id="coin-container" class="amount-container-coin">
+            <img id="coin-icon" class="coin_icon" src="./asset/coin-icon.png"></img>
+            <span id="coin-amount-label">0/20</span>
+        </div>
+
+        <!--poison cotainer-->
+        <div id="poison-container" class="amount-container-poison">
+            <img id="poison-icon" class="poison_icon" src="./asset/posion-icon.png"></img>
+            <span id="poison-amount-label">0/5</span>
+        </div>
+    </div>
+
+
     <canvas id="canvas1"></canvas>
     <!-- character -->
-    <img id = "playerSwimming"src="./asset/swim.png">
-    <img id = "jellyFish"src="./asset/enemy1.png">
-    <img id = "idleplayer"src="./asset/idle.png">
-    <img id = "playerAttack"src="./asset/attack.png">
+    <img id="playerSwimming" src="./asset/swim-green.png">
+    <img id="jellyFish" src="./asset/enemy1.png">
+    <img id="idleplayer" src="./asset/idle-green 1.png">
+    <img id="playerAttack" src="./asset/attack-green.png">
+    <img id="playerShock" src="./asset/electric-green.png">
     <!-- props -->
-    <img id = "poisionBubble"src="./asset/poision.png">
-    <img id = "coin"src="./asset/coin.png">
+    <img id="poisionBubble" src="./asset/poision.png">
+    <img id="coin" src="./asset/coin.png">
     <!-- environment -->
-    <img id="layer1"src="./asset/test1.png">
-    <img id="layer2"src="./asset/test2.png">
+    <img id="background1" src="./asset/Artboard 1.png" style="display:none;">
+    <img id="background2" src="./asset/Artboard 1 copy.png" style="display:none;">
+    
+    <!-- sounds -->
+    <audio id="coinSound" src="./asset/sounds/coin-collected.mp3"></audio>
+    <audio id="clickSound" src="./asset/sounds/button-click.mp3"></audio>
+    <audio id="backgroundSound" src="./asset/sounds/game-music.mp3"></audio>
+    <audio id="swimSound" src="./asset/sounds/jump.wav"></audio>
+    <audio id="bubbleSound" src="./asset/sounds/bubble-creation.wav"></audio>
+    <audio id="bubbleSound1" src="./asset/sounds/bubble-pop.wav"></audio>
+    <audio id="maxCoinSound" src="./asset/sounds/harp-glissando-ascending-short-103885.mp3"></audio>
+    <!-- <audio id="backgroundSound" src="./asset/sounds/win.mp3"></audio> -->
     <script src="./script.js"></script>
 </body>
+
 </html>

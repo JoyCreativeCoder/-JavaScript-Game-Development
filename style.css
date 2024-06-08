@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 * {
   padding: 0px;
   margin: 0px;
@@ -5,7 +8,13 @@
 }
 
 body {
-  background-color: #1d8ff27a;
+  background-color: #051346;
+  overflow: hidden;
+}
+
+#gameContainer {
+  background-color: black;
+  position: relative;
   overflow: hidden;
 }
 
@@ -14,9 +23,211 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(180deg, #00d2ff 0%, #3a47d5 100%);
+  background: linear-gradient(180deg, #0621eb 0%, #080c36 100%);
   max-width: 100%;
   max-height: 100%;
+  display: none; /* Hide the canvas initially */
+}
+
+/* character health bar */
+
+.health-bar-container {
+  display: flex;
+  background: linear-gradient(white, #AAE8FF);
+  height: 50px;
+  width: 400px;
+  border-radius: 40px;
+  border: white solid 3px;
+  position: absolute;
+  left: 150px;  
+  top: 20px;
+  z-index:100;
+}
+
+.health-bar {
+  border-radius: 40px;
+  background: linear-gradient(#b5ff2b, #82c900);
+  height: 100%;
+  width: 100%;
+  border: rgb(255, 255, 255) solid 3px;
+  position: absolute;
+}
+
+
+#health-icon {
+  position: absolute;
+  top: -75px;
+  left: -50px;
+}
+
+/* top right menu */
+
+.right_menu_bar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: absolute;
+  left: 85%;
+  margin-top: 20px;
+  z-index: 100;
+}
+
+.menu_buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: space-evenly;
+
+}
+
+.menu-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 32px;
+  width: 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  /* box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3); */
+  transition: 100ms;
+}  
+
+  .menu-button:hover {
+  transform: scale(1.1);
+  
+  }
+  
+  .menu-button img {
+    height: 22px;
+    }
+    
+    #control-button {
+    background:  rgb(54, 162, 250);
+}
+
+/* coin and poison */
+
+.amount-container-coin {
+  background: rgba(0, 0, 0, 0.2);
+  margin-right: 10px;
+  height: 38px;
+  border-radius: 40px;
+  width: 130px;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-weight: 600;
+  font-size: 22px;
+  padding-right: 19px;  
+  }
+
+.amount-container-coin img {
+  height: 80px; 
+}
+
+.amount-container-poison {
+  /* background: rgba(0, 0, 0, 0.2);
+  margin-right: 10px;
+  height: 38px;
+  border-radius: 40px;
+  width: 130px;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  justify-content: space-evenly;
+  align-items: center;
+  font-weight: 600;
+  font-size: 25px;
+  padding-right: 19px;   */
+
+  background: rgba(0, 0, 0, 0.2);
+  margin-right: 10px;
+  height: 38px;
+  border-radius: 40px;
+  width: 130px;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-weight: 600;
+  font-size: 22px;
+  padding-right: 19px;  
+}
+
+.amount-container-poison img {
+  height: 80px;
+}  
+
+
+#openingScreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: black;
+  background-image: url('./asset/test2.png');
+  max-width: 100%;
+  max-height: 100%;
+  height: 1080px;
+  width: 1920px;
+  z-index: 500;
+}
+
+#opening-header {
+  color: white;
+  font-size: 128px;
+  font-family: 'Fredoka One', cursive;
+  margin-bottom: 120px;
+  animation: breathing 5s ease-in-out infinite;
+  text-shadow: 1px 1px #3798C5,
+  2px 2px #3798C5,
+  3px 3px #3798C5,
+  4px 4px #3798C5,
+  6px 6px #4A43AE,
+  6px 6px #4A43AE,
+  7px 7px #4A43AE,
+  8px 8px #4A43AE,
+  0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#playButton {
+  width:250px;
+  background-color: #9FC805;
+  border-radius: 10px;
+  height: 60px;
+  font-size: 28px;
+  box-shadow: 0px 4px #718E04;
+  text-shadow: 0px 2px 2px #718E04;
+  transition: .1s;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+#playButton:hover {
+  box-shadow: none;
+}
+
+@keyframes breathing {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.96);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 #layer1,
@@ -29,6 +240,7 @@ body {
 #background1,
 #background2,
 #playerSwimming,
+#playerShock,
 #jellyFish,
 #coin,
 #idleplayer,
