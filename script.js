@@ -12,6 +12,8 @@ window.addEventListener("load", () => {
   const swimSound = document.getElementById("swimSound")
   const bubbleSound = document.getElementById("bubbleSound");
   const bubbleSound1 = document.getElementById("bubbleSound1");
+  const electricShock = document.getElementById("electricShock");
+
 
   const soundButton = document.getElementById('sound-button');
   const musicButton = document.getElementById('music-button');
@@ -48,8 +50,8 @@ window.addEventListener("load", () => {
           this.game.keys.push(event.key);
         } else if (event.key === " ") {
           this.game.player.shoot();
+          // bubbleSound1.play();
           bubbleSound.play();
-          bubbleSound1.play();
         }
       });
 
@@ -96,9 +98,7 @@ window.addEventListener("load", () => {
   class Player {
     constructor(game) {
       this.game = game;
-      this.width = 150;
-      this.height = 87;
-      this.startX = 300; 
+      this.startX = 300;
       this.x = this.startX;
       this.y = 800;
       this.speedY = 0;
@@ -106,23 +106,25 @@ window.addEventListener("load", () => {
       this.maxSpeed = 10;
       this.gravity = 4.5;
       this.projectiles = [];
-      this.flipped = false; 
-      this.movingLeft = false; 
-  
+      this.flipped = false;
+      this.movingLeft = false;
+    
       this.sprites = {
-        [PlayerStates.IDLE]: document.getElementById("idleplayer"),
-        [PlayerStates.SWIMMING]: document.getElementById("playerSwimming"),
-        [PlayerStates.ATTACK]: document.getElementById("playerAttack"),
-        [PlayerStates.SHOCK]: document.getElementById("playerShock"),
+        [PlayerStates.IDLE]: { image: document.getElementById("idleplayer"), width: 150, height: 87 },
+        [PlayerStates.SWIMMING]: { image: document.getElementById("playerSwimming"), width: 150, height: 87 },
+        [PlayerStates.ATTACK]: { image: document.getElementById("playerAttack"), width: 150, height: 87 },
+        [PlayerStates.SHOCK]: { image: document.getElementById("playerShock"), width: 87, height: 150 },
       };
-  
+    
       // Initial state
       this.state = PlayerStates.IDLE;
-      this.image = this.sprites[this.state];
-  
+      this.image = this.sprites[this.state].image;
+      this.width = this.sprites[this.state].width;
+      this.height = this.sprites[this.state].height;
+    
       this.frameX = 0;
       this.frameY = 0;
-      this.maxFrame = 15; // Based on IDLE state frames
+      this.maxFrame = 17; // Based on IDLE state frames
       this.fps = 10;
       this.frameInterval = 1000 / this.fps;
       this.frameTimer = 0;
@@ -132,7 +134,9 @@ window.addEventListener("load", () => {
     setState(state) {
       if (this.state !== state) {
         this.state = state;
-        this.image = this.sprites[this.state];
+        this.image = this.sprites[this.state].image;
+        this.width = this.sprites[this.state].width;
+        this.height = this.sprites[this.state].height;
         this.frameX = 0;
         this.frameTimer = 0;
         switch (state) {
@@ -145,6 +149,9 @@ window.addEventListener("load", () => {
           case PlayerStates.ATTACK:
             this.maxFrame = 6;
             this.attackCooldown = 500;
+            break;
+          case PlayerStates.SHOCK:
+            this.maxFrame = 1; 
             break;
         }
       }
@@ -162,9 +169,9 @@ window.addEventListener("load", () => {
       } else {
         this.speedY = 0;
       }
-  
+    
       this.movingLeft = false;
-  
+    
       if (this.game.keys.includes("ArrowLeft")) {
         this.speedX = -this.maxSpeed;
         if (!this.flipped) this.flip();
@@ -175,30 +182,30 @@ window.addEventListener("load", () => {
       } else {
         this.speedX = 0;
       }
-  
+    
       this.speedY += this.gravity;
       this.y += this.speedY;
-  
+    
       // Prevent moving back beyond the starting position
       this.x += this.speedX;
       if (this.x < this.startX) {
         this.x = this.startX;
       }
-  
+    
       const buffer = 0;
-  
+    
       if (this.x < -buffer) this.x = -buffer;
       if (this.x + this.width > this.game.width + buffer)
         this.x = this.game.width + buffer - this.width;
       if (this.y < -2 * buffer) this.y = -2 * buffer;
       if (this.y + this.height > this.game.height + 2 * buffer)
         this.y = this.game.height + 2 * buffer - this.height;
-  
+    
       this.projectiles.forEach((projectile) => projectile.update());
       this.projectiles = this.projectiles.filter(
         (projectile) => !projectile.markedForDeletion
       );
-  
+    
       if (this.frameTimer > this.frameInterval) {
         if (this.frameX < this.maxFrame - 1) {
           this.frameX++;
@@ -209,7 +216,7 @@ window.addEventListener("load", () => {
       } else {
         this.frameTimer += deltaTime;
       }
-  
+    
       if (this.attackCooldown > 0) {
         this.attackCooldown -= deltaTime;
         if (this.attackCooldown <= 0) {
@@ -225,7 +232,14 @@ window.addEventListener("load", () => {
           this.setState(PlayerStates.IDLE);
         }
       }
+    
+      if (this.state === PlayerStates.SHOCK) {
+        if (this.frameTimer > this.frameInterval * 10) { 
+          this.setState(PlayerStates.IDLE);
+        }
+      }
     }
+    
   
     draw(context) {
       context.save();
@@ -261,20 +275,20 @@ window.addEventListener("load", () => {
     }
   
     shoot() {
-        if (this.game.ammo > 0) {
-          const offsetX = this.width * 0.75;
-          const offsetY = this.height * 0.5;
-          const projectileX = this.flipped ? this.x - offsetX : this.x + offsetX;
-          const direction = this.flipped ? -1 : 1; 
-          this.projectiles.push(
-            new ProjectileBubble(this.game, projectileX, this.y + offsetY, direction) 
-          );
-          this.game.ammo--;
-          this.setState(PlayerStates.ATTACK);
-        }
+      if (this.game.ammo > 0) {
+        const offsetX = this.width * 0.75;
+        const offsetY = this.height * 0.5;
+        const projectileX = this.flipped ? this.x - offsetX : this.x + offsetX;
+        const direction = this.flipped ? -1 : 1; 
+        this.projectiles.push(
+          new ProjectileBubble(this.game, projectileX, this.y + offsetY, direction) 
+        );
+        this.game.ammo--;
+        this.setState(PlayerStates.ATTACK);
       }
-      
+    }
   }
+  
   
 
   class Enemy {
@@ -312,9 +326,9 @@ window.addEventListener("load", () => {
       this.frameTimer = 0;
       this.frameInterval = 1000 / 10;
       this.y = Math.random() * (this.game.height * 0.9 - this.height);
-      this.speedY = Math.random() * 2 - 1; // Adding vertical movement for variety
+      this.speedY = Math.random() * 2 - 1; // Added vertical movement for variety
     }
-
+  
     update(deltaTime) {
       super.update(deltaTime);
       this.y += this.speedY;
@@ -332,7 +346,7 @@ window.addEventListener("load", () => {
         this.frameTimer += deltaTime;
       }
     }
-
+  
     draw(context) {
       context.drawImage(
         this.image,
@@ -347,14 +361,15 @@ window.addEventListener("load", () => {
       );
     }
   }
+  
 
   const coinSound = document.getElementById("coinSound");
 
   class Coin {
     constructor(game) {
       this.game = game;
-      this.x = Math.random() * this.game.width; // Adjust this line
-      this.y = this.game.height; // Start from the bottom
+      this.x = Math.random() * this.game.width; 
+      this.y = this.game.height; 
       this.width = 60;
       this.height = 60;
       this.image = document.getElementById("coin");
@@ -364,7 +379,7 @@ window.addEventListener("load", () => {
   
     update() {
       this.y -= this.speed;
-      if (this.y + this.height < 0) { // Remove coins when they float out of the canvas
+      if (this.y + this.height < 0) { 
         this.markedForDeletion = true;
       }
       // Check for collision with player
@@ -404,24 +419,24 @@ window.addEventListener("load", () => {
   
 
   class UI {
-    constructor(game) {
-      this.game = game;
-      this.fontSize = 30;
-      this.fontFamily = "Helvetica";
-      this.color = "white";
-    }
+    // constructor(game) {
+    //   this.game = game;
+    //   this.fontSize = 30;
+    //   this.fontFamily = "Helvetica";
+    //   this.color = "white";
+    // }
 
-    draw(context) {
-      context.save();
-      context.fillStyle = this.color;
-      context.shadowOffsetX = 2;
-      context.shadowOffsetY = 2;
-      context.shadowColor = "black";
-      context.font = this.fontSize + "px " + this.fontFamily;
-      context.fillText("Score: " + this.game.score, 20, 50);
-      context.fillText("Ammo: " + this.game.ammo, 20, 90);
-      context.restore();
-    }
+    // draw(context) {
+    //   context.save();
+    //   context.fillStyle = this.color;
+    //   context.shadowOffsetX = 2;
+    //   context.shadowOffsetY = 2;
+    //   context.shadowColor = "black";
+    //   context.font = this.fontSize + "px " + this.fontFamily;
+    //   context.fillText("Score: " + this.game.score, 20, 50);
+    //   context.fillText("Ammo: " + this.game.ammo, 20, 90);
+    //   context.restore();
+    // }
   }
 
   class Background {
@@ -503,6 +518,14 @@ window.addEventListener("load", () => {
   
       this.enemies.forEach((enemy) => {
         enemy.update(deltaTime);
+
+         // Check for collision with player
+      if (this.checkCollision(this.player, enemy)) {
+        this.player.setState(PlayerStates.SHOCK);
+          electricShock.play();
+      }
+
+
         if (
           this.player.projectiles.some(
             (projectile) =>
@@ -525,12 +548,21 @@ window.addEventListener("load", () => {
         this.enemyTimer += deltaTime;
       }
     }
+
+    checkCollision(rect1, rect2) {
+      return (
+        rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.y + rect1.height > rect2.y
+      );
+    }
   
     draw(context) {
       this.background.draw(context);
       this.player.draw(context);
       this.enemies.forEach((enemy) => enemy.draw(context));
-      this.ui.draw(context);
+      // this.ui.draw(context);
       this.coins.forEach((coin) => coin.draw(context));
     }
   
