@@ -34,8 +34,8 @@ body {
 .health-bar-container {
   display: flex;
   background: linear-gradient(white, #AAE8FF);
-  height: 50px;
-  width: 400px;
+  height: 40px;
+  width: 350px;
   border-radius: 40px;
   border: white solid 3px;
   position: absolute;
@@ -49,15 +49,14 @@ body {
   background: linear-gradient(#b5ff2b, #82c900);
   height: 100%;
   width: 100%;
-  border: rgb(255, 255, 255) solid 3px;
   position: absolute;
 }
 
 
 #health-icon {
   position: absolute;
-  top: -75px;
-  left: -50px;
+  top:  -33px;
+  left: -30px;
 }
 
 /* top right menu */
@@ -245,6 +244,7 @@ body {
 #coin,
 #idleplayer,
 #playerAttack,
+#playerDead,
 #poisionBubble {
   display: none;
 }

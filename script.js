@@ -3,34 +3,34 @@ window.addEventListener("load", () => {
   const context = canvas.getContext("2d");
   canvas.width = 1920;
   canvas.height = 1080;
-  
+
   const openingScreen = document.getElementById("openingScreen");
   const playButton = document.getElementById("playButton");
-    
+  const healthBar = document.getElementById('health-bar');
+
   const clickSound = document.getElementById("clickSound");
   const backgroundSound = document.getElementById("backgroundSound");
-  const swimSound = document.getElementById("swimSound")
+  const swimSound = document.getElementById("swimSound");
   const bubbleSound = document.getElementById("bubbleSound");
-  const bubbleSound1 = document.getElementById("bubbleSound1");
+  const deadSound = document.getElementById("deadSound");
   const electricShock = document.getElementById("electricShock");
 
-
-  const soundButton = document.getElementById('sound-button');
-  const musicButton = document.getElementById('music-button');
-  const controlButton = document.getElementById('control-button');
+  const soundButton = document.getElementById("sound-button");
+  const musicButton = document.getElementById("music-button");
+  const controlButton = document.getElementById("control-button");
 
   soundButton.addEventListener("click", () => {
     clickSound.play();
-  })
+  });
 
   musicButton.addEventListener("click", (e) => {
     backgroundSound.play();
-  })
+  });
 
   controlButton.addEventListener("click", () => {
     clickSound.play();
-  })
-  
+  });
+
   playButton.addEventListener("click", () => {
     clickSound.play();
     openingScreen.style.display = "none";
@@ -43,7 +43,9 @@ window.addEventListener("load", () => {
       this.game = game;
       window.addEventListener("keydown", (event) => {
         if (
-          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) &&
+          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
+            event.key
+          ) &&
           this.game.keys.indexOf(event.key) === -1
         ) {
           swimSound.play();
@@ -68,31 +70,31 @@ window.addEventListener("load", () => {
       this.game = game;
       this.x = x;
       this.y = y;
-      this.speed = 10;
+      this.speed = 30;
       this.direction = direction;
       this.markedForDeletion = false;
       this.image = document.getElementById("poisionBubble");
       this.width = 40;
       this.height = 40;
     }
-  
+
     update() {
       this.x += this.speed * this.direction;
       if (this.x > this.game.width || this.x < 0) {
         this.markedForDeletion = true;
       }
     }
-  
+
     draw(context) {
       context.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
   }
-  
 
   const PlayerStates = {
     IDLE: "idle",
     SWIMMING: "swimming",
     ATTACK: "attack",
+    DEAD: "dead",
   };
 
   class Player {
@@ -108,20 +110,45 @@ window.addEventListener("load", () => {
       this.projectiles = [];
       this.flipped = false;
       this.movingLeft = false;
-    
+      this.collisionCount = 0;
+      this.collisionLimit = 3;
+      this.lastCollisionTime = 0; // Add this line
+      this.collisionCooldown = 1000; // Add a cooldown period of 1 second
+  
       this.sprites = {
-        [PlayerStates.IDLE]: { image: document.getElementById("idleplayer"), width: 150, height: 87 },
-        [PlayerStates.SWIMMING]: { image: document.getElementById("playerSwimming"), width: 150, height: 87 },
-        [PlayerStates.ATTACK]: { image: document.getElementById("playerAttack"), width: 150, height: 87 },
-        [PlayerStates.SHOCK]: { image: document.getElementById("playerShock"), width: 87, height: 150 },
+        [PlayerStates.IDLE]: {
+          image: document.getElementById("idleplayer"),
+          width: 150,
+          height: 87,
+        },
+        [PlayerStates.SWIMMING]: {
+          image: document.getElementById("playerSwimming"),
+          width: 150,
+          height: 87,
+        },
+        [PlayerStates.ATTACK]: {
+          image: document.getElementById("playerAttack"),
+          width: 150,
+          height: 87,
+        },
+        [PlayerStates.SHOCK]: {
+          image: document.getElementById("playerShock"),
+          width: 87,
+          height: 150,
+        },
+        [PlayerStates.DEAD]: {
+          image: document.getElementById("playerDead"),
+          width: 87,
+          height: 150,
+        },
       };
-    
+  
       // Initial state
       this.state = PlayerStates.IDLE;
       this.image = this.sprites[this.state].image;
       this.width = this.sprites[this.state].width;
       this.height = this.sprites[this.state].height;
-    
+  
       this.frameX = 0;
       this.frameY = 0;
       this.maxFrame = 17; // Based on IDLE state frames
@@ -151,9 +178,34 @@ window.addEventListener("load", () => {
             this.attackCooldown = 500;
             break;
           case PlayerStates.SHOCK:
-            this.maxFrame = 1; 
+            this.maxFrame = 1;
+            break;
+          case PlayerStates.DEAD:
+            this.maxFrame = 8;
             break;
         }
+      }
+    }
+  
+    handleCollision() {
+      //this handles the timing for the collition
+      const currentTime = Date.now();
+      if (currentTime - this.lastCollisionTime < this.collisionCooldown) {
+        return;
+      }
+      this.lastCollisionTime = currentTime;
+  
+      this.collisionCount++;
+      if (this.collisionCount >= this.collisionLimit) {
+        healthBar.style.background = 'red';
+        healthBar.style.width = '25%';
+        this.setState(PlayerStates.DEAD);
+        deadSound.play();
+      } else {
+        healthBar.style.background = 'yellow';
+        healthBar.style.width = '50%';
+        this.setState(PlayerStates.SHOCK);
+        electricShock.play();
       }
     }
   
@@ -169,9 +221,9 @@ window.addEventListener("load", () => {
       } else {
         this.speedY = 0;
       }
-    
+  
       this.movingLeft = false;
-    
+  
       if (this.game.keys.includes("ArrowLeft")) {
         this.speedX = -this.maxSpeed;
         if (!this.flipped) this.flip();
@@ -182,30 +234,26 @@ window.addEventListener("load", () => {
       } else {
         this.speedX = 0;
       }
-    
+  
       this.speedY += this.gravity;
       this.y += this.speedY;
-    
-      // Prevent moving back beyond the starting position
+  
       this.x += this.speedX;
-      if (this.x < this.startX) {
-        this.x = this.startX;
-      }
-    
+  
       const buffer = 0;
-    
+  
       if (this.x < -buffer) this.x = -buffer;
       if (this.x + this.width > this.game.width + buffer)
         this.x = this.game.width + buffer - this.width;
       if (this.y < -2 * buffer) this.y = -2 * buffer;
       if (this.y + this.height > this.game.height + 2 * buffer)
         this.y = this.game.height + 2 * buffer - this.height;
-    
+  
       this.projectiles.forEach((projectile) => projectile.update());
       this.projectiles = this.projectiles.filter(
         (projectile) => !projectile.markedForDeletion
       );
-    
+  
       if (this.frameTimer > this.frameInterval) {
         if (this.frameX < this.maxFrame - 1) {
           this.frameX++;
@@ -216,7 +264,7 @@ window.addEventListener("load", () => {
       } else {
         this.frameTimer += deltaTime;
       }
-    
+  
       if (this.attackCooldown > 0) {
         this.attackCooldown -= deltaTime;
         if (this.attackCooldown <= 0) {
@@ -232,14 +280,13 @@ window.addEventListener("load", () => {
           this.setState(PlayerStates.IDLE);
         }
       }
-    
+  
       if (this.state === PlayerStates.SHOCK) {
-        if (this.frameTimer > this.frameInterval * 10) { 
+        if (this.frameTimer > this.frameInterval * 10) {
           this.setState(PlayerStates.IDLE);
         }
       }
     }
-    
   
     draw(context) {
       context.save();
@@ -251,7 +298,7 @@ window.addEventListener("load", () => {
           this.frameY * this.height,
           this.width,
           this.height,
-          -this.x - this.width, // Adjust x for flip
+          -this.x - this.width,
           this.y,
           this.width,
           this.height
@@ -279,16 +326,20 @@ window.addEventListener("load", () => {
         const offsetX = this.width * 0.75;
         const offsetY = this.height * 0.5;
         const projectileX = this.flipped ? this.x - offsetX : this.x + offsetX;
-        const direction = this.flipped ? -1 : 1; 
+        const direction = this.flipped ? -1 : 1;
         this.projectiles.push(
-          new ProjectileBubble(this.game, projectileX, this.y + offsetY, direction) 
+          new ProjectileBubble(
+            this.game,
+            projectileX,
+            this.y + offsetY,
+            direction
+          )
         );
         this.game.ammo--;
         this.setState(PlayerStates.ATTACK);
       }
     }
   }
-  
   
 
   class Enemy {
@@ -325,8 +376,18 @@ window.addEventListener("load", () => {
       this.maxFrame = 3;
       this.frameTimer = 0;
       this.frameInterval = 1000 / 10;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
-      this.speedY = Math.random() * 2 - 1; // Added vertical movement for variety
+  
+      const randomSide = Math.random() < 0.5 ? "left" : "right";
+      if (randomSide === "left") {
+        this.x = -this.width;
+        this.speedX = Math.random() * 0.5 + 1; 
+      } else {
+        this.x = this.game.width;
+        this.speedX = Math.random() * -0.5 - 1; 
+      }
+  
+      this.y = Math.random() * (this.game.height - this.height);
+      this.speedY = Math.random() * 2 - 1;
     }
   
     update(deltaTime) {
@@ -348,6 +409,8 @@ window.addEventListener("load", () => {
     }
   
     draw(context) {
+      context.fillStyle = "red";
+      context.strokeRect(this.x, this.y, this.width, this.height);
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -368,18 +431,18 @@ window.addEventListener("load", () => {
   class Coin {
     constructor(game) {
       this.game = game;
-      this.x = Math.random() * this.game.width; 
-      this.y = this.game.height; 
+      this.x = Math.random() * this.game.width;
+      this.y = this.game.height;
       this.width = 60;
       this.height = 60;
       this.image = document.getElementById("coin");
-      this.speed = Math.random() * 2 + 1; // Adjust speed for more randomness
+      this.speed = Math.random() * 1 + 1; 
       this.markedForDeletion = false;
     }
-  
+
     update() {
       this.y -= this.speed;
-      if (this.y + this.height < 0) { 
+      if (this.y + this.height < 0) {
         this.markedForDeletion = true;
       }
       // Check for collision with player
@@ -387,56 +450,36 @@ window.addEventListener("load", () => {
         this.x < this.game.player.x + this.game.player.width &&
         this.x + this.width > this.game.player.x &&
         this.y < this.game.player.y + this.game.player.height &&
-        this.y + this.height > this.game.player.y && this.game.coinCount < 20
+        this.y + this.height > this.game.player.y &&
+        this.game.coinCount < 30
       ) {
-
         this.markedForDeletion = true;
         this.game.score++;
         this.game.coinCount++;
         this.updateCoinLabel();
         coinSound.play();
-        if (this.game.coinCount === 20) {
+        if (this.game.coinCount === 30) {
           this.playMaxCoinSound();
         }
       }
     }
-  
+
     updateCoinLabel() {
       const coinAmountLabel = document.getElementById("coin-amount-label");
-      coinAmountLabel.textContent = `${this.game.coinCount}/20`;
+      coinAmountLabel.textContent = `${this.game.coinCount}/30`;
     }
-  
+
     playMaxCoinSound() {
       const maxCoinSound = document.getElementById("maxCoinSound");
       maxCoinSound.play();
     }
-  
+
     draw(context) {
       context.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
   }
-  
-  
 
   class UI {
-    // constructor(game) {
-    //   this.game = game;
-    //   this.fontSize = 30;
-    //   this.fontFamily = "Helvetica";
-    //   this.color = "white";
-    // }
-
-    // draw(context) {
-    //   context.save();
-    //   context.fillStyle = this.color;
-    //   context.shadowOffsetX = 2;
-    //   context.shadowOffsetY = 2;
-    //   context.shadowColor = "black";
-    //   context.font = this.fontSize + "px " + this.fontFamily;
-    //   context.fillText("Score: " + this.game.score, 20, 50);
-    //   context.fillText("Ammo: " + this.game.ammo, 20, 90);
-    //   context.restore();
-    // }
   }
 
   class Background {
@@ -448,13 +491,13 @@ window.addEventListener("load", () => {
       this.height = 1080;
       this.x1 = 0;
       this.x2 = this.width;
-      this.speed = 5; 
+      this.speed = 5;
     }
-  
+
     update() {
       this.x1 -= this.speed;
       this.x2 -= this.speed;
-  
+
       // Reset positions to create a seamless scroll
       if (this.x1 <= -this.width) {
         this.x1 = this.width;
@@ -463,13 +506,12 @@ window.addEventListener("load", () => {
         this.x2 = this.width;
       }
     }
-  
+
     draw(context) {
       context.drawImage(this.image1, this.x1, 0, this.width, this.height);
       context.drawImage(this.image2, this.x2, 0, this.width, this.height);
     }
   }
-  
 
   class Game {
     constructor(width, height) {
@@ -493,7 +535,9 @@ window.addEventListener("load", () => {
       this.coins = [];
       this.coinInterval = 1000;
       this.coinTimer = 0;
-      this.coinCount = 0; // Initialize coin count
+      this.coinCount = 0; 
+      this.totalCoinsAdded = 0; 
+      this.maxEnemiesAtOnce = 2;
     }
   
     update(deltaTime) {
@@ -509,7 +553,7 @@ window.addEventListener("load", () => {
       this.coins.forEach((coin) => coin.update(deltaTime));
       this.coins = this.coins.filter((coin) => !coin.markedForDeletion);
   
-      if (this.coinTimer > this.coinInterval) {
+      if (this.coinTimer > this.coinInterval  && this.coinCount < 30) { 
         this.addCoin();
         this.coinTimer = 0;
       } else {
@@ -518,18 +562,17 @@ window.addEventListener("load", () => {
   
       this.enemies.forEach((enemy) => {
         enemy.update(deltaTime);
-
-         // Check for collision with player
-      if (this.checkCollision(this.player, enemy)) {
-        this.player.setState(PlayerStates.SHOCK);
-          electricShock.play();
-      }
-
-
+  
+        // Check for collision with player
+        if (this.checkCollision(this.player, enemy)) {
+          this.player.handleCollision();
+          // this.player.setState(PlayerStates.SHOCK);
+          // electricShock.play();
+        } 
         if (
           this.player.projectiles.some(
             (projectile) =>
-              projectile.x + projectile.width > enemy.x &&
+              projectile.x + projectile.width > enemy.x &&  
               projectile.x < enemy.x + enemy.width &&
               projectile.y + projectile.height > enemy.y &&
               projectile.y < enemy.y + enemy.height
@@ -548,7 +591,7 @@ window.addEventListener("load", () => {
         this.enemyTimer += deltaTime;
       }
     }
-
+  
     checkCollision(rect1, rect2) {
       return (
         rect1.x < rect2.x + rect2.width &&
@@ -562,25 +605,25 @@ window.addEventListener("load", () => {
       this.background.draw(context);
       this.player.draw(context);
       this.enemies.forEach((enemy) => enemy.draw(context));
-      // this.ui.draw(context);
       this.coins.forEach((coin) => coin.draw(context));
     }
   
     addEnemy() {
-      this.enemies.push(new Jellyfish(this));
+      for (let i = 0; i < this.maxEnemiesAtOnce; i++) {
+        this.enemies.push(new Jellyfish(this));
+      }
     }
   
     addCoin() {
       this.coins.push(new Coin(this));
+      this.totalCoinsAdded++; 
     }
   }
   
-  
-  
-  
+
   const game = new Game(canvas.width, canvas.height);
   let lastTime = 0;
-  
+
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
@@ -589,7 +632,8 @@ window.addEventListener("load", () => {
     game.draw(context);
     requestAnimationFrame(animate);
   }
-  
 });
+
+
 
 
