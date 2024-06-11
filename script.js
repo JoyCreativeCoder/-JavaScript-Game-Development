@@ -9,6 +9,7 @@ window.addEventListener("load", () => {
   const diedScreen = document.getElementById("died-screen");
   const playButton = document.getElementById("playButton");
   const okButton = document.getElementById("okButton");
+  const tryAgain = document.getElementById("try-again");
   const healthBar = document.getElementById('health-bar');
 
   const clickSound = document.getElementById("clickSound");
@@ -50,6 +51,18 @@ window.addEventListener("load", () => {
     tutorialScreen.style.display = "none";
     togglePause();
 });
+
+// restart logic
+tryAgain.addEventListener("click", () => {
+  clickSound.play();
+  diedScreen.style.display = "none";
+  resetGame();
+});
+
+function resetGame() {
+    game.reset();
+    isPaused = false;
+}
 
   class InputHandler {
     constructor(game) {
@@ -567,6 +580,26 @@ window.addEventListener("load", () => {
       this.totalCoinsAdded = 0; 
       this.maxEnemiesAtOnce = 2;
     }
+
+    reset() {
+      this.player = new Player(this);
+      this.keys = [];
+      this.enemies = [];
+      this.enemyTimer = 0;
+      this.ammo = 20;
+      this.ammoTimer = 0;
+      this.score = 0;
+      this.gameOver = false;
+      this.coins = [];
+      this.coinTimer = 0;
+      this.coinCount = 0;
+      this.totalCoinsAdded = 0;
+      healthBar.style.width = '100%';
+      healthBar.style.background = 'linear-gradient(#b5ff2b, #82c900)';
+      const coinAmountLabel = document.getElementById("coin-amount-label");
+      coinAmountLabel.textContent = "0/30"; 
+      animate(0); 
+    }
   
     update(deltaTime) {
       this.background.update();
@@ -668,6 +701,12 @@ window.addEventListener("load", () => {
       if (!isPaused) {
           requestAnimationFrame(animate);
       }
+  }
+
+  function resetGame() {
+    game.reset();
+    isPaused = false;
+    requestAnimationFrame(animate);
   }
 });
 

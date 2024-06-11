@@ -186,8 +186,8 @@ body {
   margin-bottom: 120px;
   animation: breathing 5s ease-in-out infinite;
   text-shadow: 1px 1px #3798C5,
-  2px 2px #3798C5,
-  3px 3px #3798C5,
+  2px 2px #c5b937,
+  3px 3px #c57237,
   4px 4px #3798C5,
   6px 6px #4A43AE,
   6px 6px #4A43AE,
@@ -195,6 +195,8 @@ body {
   8px 8px #4A43AE,
   0 0 10px rgba(0, 0, 0, 0.5);
 }
+
+
 .died-screen {
   position: absolute; 
   top: 0; 
@@ -213,6 +215,8 @@ body {
 }
 
 .died-message {
+    width: 100%; 
+    height: 100%; 
     color: white;
     font-size: 92px;
     font-family: 'Fredoka One';
@@ -226,12 +230,12 @@ body {
 
 .try-again {
   width: 200px;
-  background-color: #9FC805;
+  background-color: #edcb09;
+  box-shadow: 0px 4px #533c03ed;
+  text-shadow: 0px 2px 2px #a06d07;
   border-radius: 10px;
   height: 45px;
   font-size: 20px;
-  box-shadow: 0px 4px #718E04;
-  text-shadow: 0px 2px 2px #718E04;
   position: relative;
   bottom: 0;
   transition: .1s;
@@ -239,17 +243,17 @@ body {
   font-weight: 600;
   letter-spacing: 1px;
   text-align: center;
-}
+} 
 
 
 #playButton {
   width:250px;
-  background-color: #9FC805;
+  background-color: #edcb09;
+  box-shadow: 0px 4px #533c03ed;
+  text-shadow: 0px 2px 2px #a06d07;
   border-radius: 10px;
   height: 60px;
   font-size: 28px;
-  box-shadow: 0px 4px #718E04;
-  text-shadow: 0px 2px 2px #718E04;
   transition: .1s;
   cursor: pointer;
   font-weight: 600;
@@ -261,35 +265,34 @@ body {
   box-shadow: none;
 }
 
+
 .tutorial-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   height: 400px;
   width: 600px;
   background: #051346;
   border-radius: 20px;
   padding: 15px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-  z-index: 2000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
   display: none;
 }
 
 .ok {
   width: 200px;
-  background-color: #9FC805;
+  background-color: #edcb09;
+  box-shadow: 0px 4px #533c03ed;
+  text-shadow: 0px 2px 2px #a06d07;
   border-radius: 10px;
   height: 45px;
   font-size: 20px;
-  box-shadow: 0px 4px #718E04;
-  text-shadow: 0px 2px 2px #718E04;
-  position: relative;
-  bottom: 0;
+  position: absolute;
+  top: 85%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   transition: .1s;
   cursor: pointer;
   font-weight: 600;
