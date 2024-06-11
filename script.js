@@ -5,7 +5,10 @@ window.addEventListener("load", () => {
   canvas.height = 1080;
 
   const openingScreen = document.getElementById("openingScreen");
+  const tutorialScreen = document.getElementById("tutorial-container");
+  const diedScreen = document.getElementById("died-screen");
   const playButton = document.getElementById("playButton");
+  const okButton = document.getElementById("okButton");
   const healthBar = document.getElementById('health-bar');
 
   const clickSound = document.getElementById("clickSound");
@@ -19,6 +22,8 @@ window.addEventListener("load", () => {
   const musicButton = document.getElementById("music-button");
   const controlButton = document.getElementById("control-button");
 
+  let isPaused = true;
+
   soundButton.addEventListener("click", () => {
     clickSound.play();
   });
@@ -29,40 +34,45 @@ window.addEventListener("load", () => {
 
   controlButton.addEventListener("click", () => {
     clickSound.play();
+    togglePause();
   });
 
   playButton.addEventListener("click", () => {
     clickSound.play();
     openingScreen.style.display = "none";
+    tutorialScreen.style.display = "block";
     canvas.style.display = "block";
     animate(0);
   });
+
+  okButton.addEventListener("click", () => {
+    clickSound.play();
+    tutorialScreen.style.display = "none";
+    togglePause();
+});
 
   class InputHandler {
     constructor(game) {
       this.game = game;
       window.addEventListener("keydown", (event) => {
-        if (
-          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
-            event.key
-          ) &&
-          this.game.keys.indexOf(event.key) === -1
-        ) {
-          swimSound.play();
-          this.game.keys.push(event.key);
-        } else if (event.key === " ") {
-          this.game.player.shoot();
-          // bubbleSound1.play();
-          bubbleSound.play();
-        }
+          if (
+              ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key) &&
+              this.game.keys.indexOf(event.key) === -1
+          ) {
+              swimSound.play();
+              this.game.keys.push(event.key);
+          } else if (event.key === " ") {
+              this.game.player.shoot();
+              bubbleSound.play();
+          } 
       });
 
       window.addEventListener("keyup", (event) => {
-        if (this.game.keys.indexOf(event.key) > -1) {
-          this.game.keys.splice(this.game.keys.indexOf(event.key), 1);
-        }
+          if (this.game.keys.indexOf(event.key) > -1) {
+              this.game.keys.splice(this.game.keys.indexOf(event.key), 1);
+          }
       });
-    }
+  }
   }
 
   class ProjectileBubble {
@@ -111,10 +121,14 @@ window.addEventListener("load", () => {
       this.flipped = false;
       this.movingLeft = false;
       this.collisionCount = 0;
-      this.collisionLimit = 3;
-      this.lastCollisionTime = 0; // Add this line
-      this.collisionCooldown = 1000; // Add a cooldown period of 1 second
-  
+      this.collisionLimit = 4;
+      this.lastCollisionTime = 0;
+      this.collisionCooldown = 1000; 
+
+      this.maxHealth = 100;
+      this.currentHealth = this.maxHealth;
+      this.healthReductionPercentage = 20;
+
       this.sprites = {
         [PlayerStates.IDLE]: {
           image: document.getElementById("idleplayer"),
@@ -188,26 +202,40 @@ window.addEventListener("load", () => {
     }
   
     handleCollision() {
-      //this handles the timing for the collition
       const currentTime = Date.now();
       if (currentTime - this.lastCollisionTime < this.collisionCooldown) {
-        return;
+          return;
       }
       this.lastCollisionTime = currentTime;
-  
+
       this.collisionCount++;
+      //player life 
       if (this.collisionCount >= this.collisionLimit) {
-        healthBar.style.background = 'red';
-        healthBar.style.width = '25%';
-        this.setState(PlayerStates.DEAD);
-        deadSound.play();
+          healthBar.style.background = 'red';
+          healthBar.style.width = '2%';
+          this.setState(PlayerStates.DEAD);
+          deadSound.play();
+          togglePause();
+          diedScreen.style.display = "block";
+          
       } else {
-        healthBar.style.background = 'yellow';
-        healthBar.style.width = '50%';
-        this.setState(PlayerStates.SHOCK);
-        electricShock.play();
+          this.currentHealth -= this.maxHealth * (this.healthReductionPercentage / 100);
+          if (this.currentHealth < 0) this.currentHealth = 0;
+
+          const healthPercentage = (this.currentHealth / this.maxHealth) * 100;
+          healthBar.style.width = healthPercentage + '%';
+          if (healthPercentage < 25) {
+              healthBar.style.background = 'red';
+          } else if (healthPercentage < 50) {
+              healthBar.style.background = 'yellow';
+          } else {
+              healthBar.style.background = 'linear-gradient(#b5ff2b, #82c900)';
+          }
+
+          this.setState(PlayerStates.SHOCK);
+          electricShock.play();
       }
-    }
+  }
   
     flip() {
       this.flipped = !this.flipped;
@@ -622,15 +650,24 @@ window.addEventListener("load", () => {
   
 
   const game = new Game(canvas.width, canvas.height);
+    function animate(timeStamp) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      const deltaTime = timeStamp - lastTime;
+      lastTime = timeStamp;
+      game.update(deltaTime);
+      game.draw(context);
+      if (!isPaused) {
+          requestAnimationFrame(animate);
+      }
+  }
+
   let lastTime = 0;
 
-  function animate(timeStamp) {
-    const deltaTime = timeStamp - lastTime;
-    lastTime = timeStamp;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    game.update(deltaTime);
-    game.draw(context);
-    requestAnimationFrame(animate);
+  function togglePause() {
+      isPaused = !isPaused;
+      if (!isPaused) {
+          requestAnimationFrame(animate);
+      }
   }
 });
 

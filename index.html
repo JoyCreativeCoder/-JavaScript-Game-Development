@@ -15,9 +15,14 @@
         <button id="playButton">Play</button>
     </div>
 
-    <div class="died-screen">
+    <div class="tutorial-container" id="tutorial-container">
+        <button id="okButton" class="ok">Ok</button>
+    </div>
+
+    <div class="died-screen" id="died-screen">
         <div class="died-message">
             <span>Aww you died!</span>
+            <button class="try-again">Try again</button>
         </div>
     </div>
 
@@ -27,8 +32,8 @@
         <img id="health-icon" class="absolute icon" src="./asset/live-icon.png"></img>
     </div>
 
-     <!--top-right-->
-     <div id="ingame-top-right" class="right_menu_bar">
+    <!--top-right-->
+    <div id="ingame-top-right" class="right_menu_bar">
         <div id="ingame-menu" class="menu_buttons">
             <div id="sound-button" class="menu-button">
                 <img src="./asset/sound-icon.png">
@@ -56,7 +61,7 @@
 
 
     <canvas id="canvas1"></canvas>
-    <!-- character --> 
+    <!-- character -->
     <img id="playerSwimming" src="./asset/swim-green.png">
     <img id="jellyFish" src="./asset/enemy1.png">
     <img id="idleplayer" src="./asset/idle-green 1.png">
@@ -69,7 +74,7 @@
     <!-- environment -->
     <img id="background1" src="./asset/Artboard 1.png" style="display:none;">
     <img id="background2" src="./asset/Artboard 1 copy.png" style="display:none;">
-    
+
     <!-- sounds -->
     <audio id="coinSound" src="./asset/sounds/coin-collected.mp3"></audio>
     <audio id="clickSound" src="./asset/sounds/button-click.mp3"></audio>
