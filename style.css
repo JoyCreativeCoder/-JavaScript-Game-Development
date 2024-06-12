@@ -247,6 +247,56 @@ body {
   text-align: center;
 } 
 
+/* win screen */
+.win-screen {
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  width: 100%; 
+  height: 100%; 
+  background: #1616669a;
+  z-index: 1000;
+  display: flex;
+  display: none;
+  flex-direction: column;
+  justify-content:center;
+  align-items: center;
+}
+
+.win-message {
+    width: 100%; 
+    height: 100%; 
+    color: white;
+    font-size: 92px;
+    font-family: 'Fredoka One';
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+}
+
+.re-play {
+  width: 200px;
+  background-color: #edcb09;
+  box-shadow: 0px 4px #533c03ed;
+  text-shadow: 0px 2px 2px #a06d07;
+  border-radius: 10px;
+  height: 45px;
+  font-size: 20px;
+  position: relative;
+  bottom: 0;
+  transition: .1s;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+} 
+
+
 
 #playButton {
   width:250px;

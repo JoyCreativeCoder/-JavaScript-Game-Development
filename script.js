@@ -8,10 +8,12 @@ window.addEventListener("load", () => {
   const tutorialScreen = document.getElementById("tutorial-container");
   const questContainer = document.getElementById("quest-dialog-container")
   const diedScreen = document.getElementById("died-screen");
+  const winScreen = document.getElementById("win-screen");
   const playButton = document.getElementById("playButton");
   const okButton = document.getElementById("okButton");
   const questokButton = document.getElementById("questOkButton");
   const tryAgain = document.getElementById("try-again");
+  const replay = document.getElementById('re-play')
   const healthBar = document.getElementById('health-bar');
 
   const clickSound = document.getElementById("clickSound");
@@ -20,6 +22,7 @@ window.addEventListener("load", () => {
   const bubbleSound = document.getElementById("bubbleSound");
   const deadSound = document.getElementById("deadSound");
   const electricShock = document.getElementById("electricShock");
+  const winSound = document.getElementById("winSound");
 
   const soundButton = document.getElementById("sound-button");
   const musicButton = document.getElementById("music-button");
@@ -66,6 +69,12 @@ questokButton.addEventListener("click", () => {
 tryAgain.addEventListener("click", () => {
   clickSound.play();
   diedScreen.style.display = "none";
+  resetGame();
+});
+
+replay.addEventListener("click", () => {
+  clickSound.play();
+  winScreen.style.display = "none";
   resetGame();
 });
 
@@ -175,8 +184,8 @@ function resetGame() {
         },
         [PlayerStates.DEAD]: {
           image: document.getElementById("playerDead"),
-          width: 87,
-          height: 150,
+          width: 150,
+          height: 87,
         },
       };
   
@@ -218,7 +227,7 @@ function resetGame() {
             this.maxFrame = 1;
             break;
           case PlayerStates.DEAD:
-            this.maxFrame = 8;
+            this.maxFrame = 5;
             break;
         }
       }
@@ -509,7 +518,9 @@ function resetGame() {
         this.updateCoinLabel();
         coinSound.play();
         if (this.game.coinCount === 30) {
-          this.playMaxCoinSound();
+          winScreen.style.display = 'block';
+          togglePause();
+          winSound.play();
         }
       }
     }
@@ -718,7 +729,6 @@ function resetGame() {
     requestAnimationFrame(animate);
   }
 });
-
 
 
 

@@ -72,6 +72,13 @@
         </div>
     </div>
 
+    <div class="win-screen" id="win-screen">
+        <div class="win-message">
+            <span>You won!!!</span>
+            <button class="re-play" id="re-play">re-play</button>
+        </div>
+    </div>
+
     <!-- health container -->
     <div id="health-bar-container" class="absolute health-bar-container">
         <div id="health-bar" class="health-bar"></div>
@@ -98,10 +105,10 @@
             <span id="coin-amount-label">0/30</span>
         </div>
 
-        <!-- <div id="poison-container" class="amount-container-poison">
-            <img id="poison-icon" class="poison_icon" src="./asset/posion-icon.png"></img>
-            <span id="poison-amount-label">0/5</span>
-        </div> -->
+        <div id="poison-container" class="amount-container-poison">
+            <img id="poison-icon" class="poison_icon" src="./asset/jelly3.png"></img>
+            <span id="poison-amount-label">0/10</span>
+        </div>
     </div>
 
 
@@ -112,7 +119,7 @@
     <img id="idleplayer" src="./asset/idle-green 1.png">
     <img id="playerAttack" src="./asset/attack-green.png">
     <img id="playerShock" src="./asset/electric-green.png">
-    <img id="playerDead" src="./asset/dead sprite sheet.png">
+    <img id="playerDead" src="./asset/dead4.png">
     <!-- props -->
     <img id="poisionBubble" src="./asset/poision.png">
     <img id="coin" src="./asset/coin.png">
@@ -129,6 +136,7 @@
     <audio id="deadSound" src="./asset/sounds/dead-sound.mp3"></audio>
     <audio id="maxCoinSound" src="./asset/sounds/coin complete.mp3"></audio>
     <audio id="electricShock" src="./asset/sounds/electro-shock.mp3"></audio>
+    <audio id="winSound" src="./asset/sounds/win sound.mp3"></audio>
 
     <!-- <audio id="backgroundSound" src="./asset/sounds/win.mp3"></audio> -->
     <script src="./script.js"></script>
