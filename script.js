@@ -6,9 +6,11 @@ window.addEventListener("load", () => {
 
   const openingScreen = document.getElementById("openingScreen");
   const tutorialScreen = document.getElementById("tutorial-container");
+  const questContainer = document.getElementById("quest-dialog-container")
   const diedScreen = document.getElementById("died-screen");
   const playButton = document.getElementById("playButton");
   const okButton = document.getElementById("okButton");
+  const questokButton = document.getElementById("questOkButton");
   const tryAgain = document.getElementById("try-again");
   const healthBar = document.getElementById('health-bar');
 
@@ -49,7 +51,15 @@ window.addEventListener("load", () => {
   okButton.addEventListener("click", () => {
     clickSound.play();
     tutorialScreen.style.display = "none";
-    togglePause();
+    questContainer.style.display = "block";
+    questContainer.style.display = "flex";
+
+});
+
+questokButton.addEventListener("click", () => {
+  clickSound.play();
+  questContainer.style.display = "none";
+  togglePause();
 });
 
 // restart logic
@@ -451,7 +461,6 @@ function resetGame() {
   
     draw(context) {
       context.fillStyle = "red";
-      context.strokeRect(this.x, this.y, this.width, this.height);
       context.drawImage(
         this.image,
         this.frameX * this.width,

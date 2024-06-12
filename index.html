@@ -17,9 +17,53 @@
 
     <div class="tutorial-screen">
         <div class="tutorial-container" id="tutorial-container">
-            <button id="okButton" class="ok">Ok</button>
+            <div class="column">
+                <table class="sophisticated-table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="controls-key center"  id="controls-space">
+                                    <span>SPACE</span>
+                                </div>
+                            </td>
+                            <td><span class="controls-label">Shoot bubble</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="controls-key center">
+                                    <span>‹</span>
+                                    <span>›</span>
+                                </div>
+                            </td>
+                            <td><span class="controls-label">Move</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="controls-key center">
+                                    <span>&uarr;</span>
+                                    <span>&darr;</span>
+                                </div>
+                            </td>
+                            <td><span class="controls-label">Move Up/ Down</span></td>
+                        </tr>
+                  
+                    </tbody>
+                </table>
+            </div>
+            <button id="okButton" class="ok-button">Ok</button>
         </div>
     </div>
+
+    <!-- quest -->
+    <div id="quest-dialog-container" class="center column tutorial-dialog-container">
+        <img src="./asset/coin-icon.png">
+        <span>You are a brave fish navigating the vast ocean to collect ancient treasures scattered across the seabed.Your task is to collect these lost treasures while avoiding deadly jellyfish. </span>
+        <button id="questOkButton" class=" quest-ok-button">Lets Go</button>
+        <!-- <div id="quest-ok-button" class="button center">Let's go!</div> -->
+    </div>
+    </div>
+</div>
+    
 
     <div class="died-screen" id="died-screen">
         <div class="died-message">
@@ -54,11 +98,10 @@
             <span id="coin-amount-label">0/30</span>
         </div>
 
-        <!--poison cotainer-->
-        <div id="poison-container" class="amount-container-poison">
+        <!-- <div id="poison-container" class="amount-container-poison">
             <img id="poison-icon" class="poison_icon" src="./asset/posion-icon.png"></img>
             <span id="poison-amount-label">0/5</span>
-        </div>
+        </div> -->
     </div>
 
 

@@ -10,6 +10,8 @@
 body {
   background-color: #051346;
   overflow: hidden;
+  font-family: 'Varela Round', sans-serif;
+  color: white;
 }
 
 #gameContainer {
@@ -281,7 +283,51 @@ body {
   display: none;
 }
 
-.ok {
+/* style.css */
+table {
+  border-collapse: separate;
+  text-indent: initial;
+  border-spacing: 2px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+td, th {
+  padding: 12px;
+  text-align: left;
+}
+
+
+.controls-key {
+    background:rgb(47, 39, 116);
+    border-radius: 20px;
+    padding: 15px;
+    width: 60px;
+    font-weight: bold;
+    border: 3px solid #1a135c;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ #controls-space {
+  width: 120px;
+ }
+
+.controls-label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+
+.ok-button   {
   width: 200px;
   background-color: #edcb09;
   box-shadow: 0px 4px #533c03ed;
@@ -293,6 +339,64 @@ body {
   top: 85%;
   left: 50%;
   transform: translate(-50%, -50%);
+  transition: .1s;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+
+/* quest */
+
+.tutorial-dialog-container {
+  height: 400px;
+  width: 600px;
+  background: #051346;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  justify-content: space-between;
+}
+
+#quest-dialog-container {
+  display: flex ;
+  flex-direction: column;
+  font-size: 16px;
+  text-align: center;
+  background: #051346;
+  border-radius: 20px;
+  padding: 15px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: none;
+}
+
+#quest-dialog-container span {
+  margin: 0 100px;
+}
+
+#quest-dialog-container img {
+  height: 180px;
+  background: #0822816f;
+  border: 2px solid white;
+  width: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+  padding: 10px 0;
+}
+
+.quest-ok-button {
+  width: 200px;
+  background-color: #edcb09;
+  box-shadow: 0px 4px #836008ed;
+  text-shadow: 0px 2px 2px #a06d07;
+  border-radius: 10px;
+  height: 45px;
+  font-size: 20px;
   transition: .1s;
   cursor: pointer;
   font-weight: 600;
