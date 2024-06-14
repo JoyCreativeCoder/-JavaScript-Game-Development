@@ -1,4 +1,4 @@
-# Jellyt Rush
+# Jelly Rush
 
 Jelly Rush is built using HTML, CSS, and JavaScript, leveraging the power of HTML5 Canvas to render engaging 2D graphics. Dive into a simple yet captivating gaming experience right in your browser.
  The game features intuitive controls, crisp graphics, and responsive gameplay mechanics, all developed using the HTML5 Canvas API.
