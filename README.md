@@ -1,3 +1,5 @@
+![trimmed](https://github.com/JoyCreativeCoder/jelly-rush/assets/3197630/e9f13471-0a89-444b-86f1-e62a800b9980)
+
 # Jelly Rush
 
 Jelly Rush is built using HTML, CSS, and JavaScript, leveraging the power of HTML5 Canvas to render engaging 2D graphics. Dive into a simple yet captivating gaming experience right in your browser.
