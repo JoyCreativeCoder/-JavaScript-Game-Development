@@ -29,13 +29,22 @@ window.addEventListener("load", () => {
   const controlButton = document.getElementById("control-button");
 
   let isPaused = true;
+  let isMusicPlaying = false;
 
   soundButton.addEventListener("click", () => {
     clickSound.play();
   });
 
   musicButton.addEventListener("click", (e) => {
-    backgroundSound.play();
+    clickSound.play();
+    if (isMusicPlaying) {
+      backgroundSound.pause();
+      musicButton.style.backgroundColor = ""; 
+    } else {
+      backgroundSound.play();
+      musicButton.style.backgroundColor = "rgb(54, 162, 250)"; 
+    }
+    isMusicPlaying = !isMusicPlaying;
   });
 
   controlButton.addEventListener("click", () => {
@@ -179,8 +188,8 @@ function resetGame() {
         },
         [PlayerStates.SHOCK]: {
           image: document.getElementById("playerShock"),
-          width: 87,
-          height: 150,
+          width: 150,
+          height: 87,
         },
         [PlayerStates.DEAD]: {
           image: document.getElementById("playerDead"),
@@ -224,7 +233,7 @@ function resetGame() {
             this.attackCooldown = 500;
             break;
           case PlayerStates.SHOCK:
-            this.maxFrame = 1;
+            this.maxFrame = 6;
             break;
           case PlayerStates.DEAD:
             this.maxFrame = 5;
@@ -248,8 +257,9 @@ function resetGame() {
           this.setState(PlayerStates.DEAD);
           deadSound.play();
           togglePause();
+          backgroundSound.pause();
           diedScreen.style.display = "block";
-          
+
       } else {
           this.currentHealth -= this.maxHealth * (this.healthReductionPercentage / 100);
           if (this.currentHealth < 0) this.currentHealth = 0;
@@ -518,6 +528,7 @@ function resetGame() {
         this.updateCoinLabel();
         coinSound.play();
         if (this.game.coinCount === 30) {
+          backgroundSound.pause()
           winScreen.style.display = 'block';
           togglePause();
           winSound.play();
